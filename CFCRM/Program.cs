@@ -35,14 +35,29 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 if (registerRequestInfoService) builder.Services.AddHttpContextAccessor();  // Added for IRequestContextService
 
 // Add data services
+builder.Services.AddScoped<IActivityService, EFActivityService>();
 builder.Services.AddScoped<IAccountService, EFAccountService>();
 builder.Services.AddScoped<IAuditEventService, EFAuditEventService>();
 builder.Services.AddScoped<IAuditEventTypeService, EFAuditEventTypeService>();
+//builder.Services.AddScoped<ICaseService, EFCaseService>();
+builder.Services.AddScoped<ICaseTypeService, EFCaseTypeService>();
+builder.Services.AddScoped<ICommunicationService, EFCommunicationService>();
+builder.Services.AddScoped<ICommunicationTypeService, EFCommunicationTypeService>();
+builder.Services.AddScoped<ICountryService, EFCountryService>();
 builder.Services.AddScoped<IContactService, EFContactService>();
 builder.Services.AddScoped<IJobTypeService, EFJobTypeService>();
+builder.Services.AddScoped<ILeadService, EFLeadService>();
+builder.Services.AddScoped<IOpportunityService, EFOpportunityService>();
 builder.Services.AddScoped<IPasswordResetService, EFPasswordResetService>();
+builder.Services.AddScoped<IProductService, EFProductService>();
 builder.Services.AddScoped<ISystemValueTypeService, EFSystemValueTypeService>();
 builder.Services.AddScoped<IUserService, EFUserService>();
+
+// Add seed data services
+if (registerSeedDataLoad)
+{
+
+}
 
 // Add password service
 builder.Services.AddScoped<IPasswordService, PBKDF2PasswordService>();

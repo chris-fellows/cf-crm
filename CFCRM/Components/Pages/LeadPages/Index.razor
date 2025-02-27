@@ -1,0 +1,37 @@
+﻿@page "/leads"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CFCRMCommon.Models
+@using CFCRM.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="leads/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Lead">
+    <PropertyColumn Property="lead => lead.Name" />
+    <PropertyColumn Property="lead => lead.Notes" />
+
+    <TemplateColumn Context="lead">
+        <a href="@($"leads/edit?id={lead.Id}")">Edit</a> |
+        <a href="@($"leads/details?id={lead.Id}")">Details</a> |
+        <a href="@($"leads/delete?id={lead.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CFCRMContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

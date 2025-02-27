@@ -25,7 +25,15 @@ namespace CFCRMCommon.Models
 
         public string Notes { get; set; } = String.Empty;
 
+        /// <summary>
+        /// Account (if any) associated with contact. Not set if LeadId is set
+        /// </summary>
         public string AccountId { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Lead (if any) associated with contact. Not set if AccountId is set.
+        /// </summary>
+        public string LeadId { get; set; } = String.Empty;
 
         public bool Active { get; set; }
 

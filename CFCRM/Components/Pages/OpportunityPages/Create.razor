@@ -1,0 +1,49 @@
+﻿@page "/opportunities/create"
+@using Microsoft.EntityFrameworkCore
+@using CFCRMCommon.Models
+@inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Opportunity</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Opportunity" OnValidSubmit="AddOpportunity" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Opportunity.Name" class="form-control" /> 
+                <ValidationMessage For="() => Opportunity.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes:</label> 
+                <InputText id="notes" @bind-Value="Opportunity.Notes" class="form-control" /> 
+                <ValidationMessage For="() => Opportunity.Notes" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/opportunities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Opportunity Opportunity { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddOpportunity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Opportunity.Add(Opportunity);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/opportunities");
+    }
+}

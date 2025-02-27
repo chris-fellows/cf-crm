@@ -1,0 +1,48 @@
+﻿@page "/opportunities/details"
+@using Microsoft.EntityFrameworkCore
+@using CFCRMCommon.Models
+@inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Opportunity</h2>
+    <hr />
+    @if (opportunity is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@opportunity.Name</dd>
+            <dt class="col-sm-2">Notes</dt>
+            <dd class="col-sm-10">@opportunity.Notes</dd>
+        </dl>
+        <div>
+            <a href="@($"/opportunities/edit?id={opportunity.Id}")">Edit</a> |
+            <a href="@($"/opportunities")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Opportunity? opportunity;
+
+    [SupplyParameterFromQuery]
+    private string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        opportunity = await context.Opportunity.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (opportunity is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

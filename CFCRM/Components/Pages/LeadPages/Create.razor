@@ -1,0 +1,49 @@
+﻿@page "/leads/create"
+@using Microsoft.EntityFrameworkCore
+@using CFCRMCommon.Models
+@inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Lead</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Lead" OnValidSubmit="AddLead" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Lead.Name" class="form-control" /> 
+                <ValidationMessage For="() => Lead.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes:</label> 
+                <InputText id="notes" @bind-Value="Lead.Notes" class="form-control" /> 
+                <ValidationMessage For="() => Lead.Notes" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/leads">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Lead Lead { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddLead()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Lead.Add(Lead);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/leads");
+    }
+}

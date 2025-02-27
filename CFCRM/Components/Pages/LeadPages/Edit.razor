@@ -1,0 +1,94 @@
+﻿@page "/leads/edit"
+@using Microsoft.EntityFrameworkCore
+@using CFCRMCommon.Models
+@inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Lead</h2>
+<hr />
+@if (Lead is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Lead" OnValidSubmit="UpdateLead" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Lead.Id" value="@Lead.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Lead.Name" class="form-control" />
+                    <ValidationMessage For="() => Lead.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notes:</label>
+                    <InputText id="notes" @bind-Value="Lead.Notes" class="form-control" />
+                    <ValidationMessage For="() => Lead.Notes" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/leads">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private string Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Lead? Lead { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Lead ??= await context.Lead.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Lead is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateLead()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Lead!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!LeadExists(Lead!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/leads");
+    }
+
+    private bool LeadExists(string id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Lead.Any(e => e.Id == id);
+    }
+}
