@@ -1,0 +1,68 @@
+﻿@page "/logout"
+@using Microsoft.AspNetCore.Authentication
+@using CFCRMCommon.Constants
+@using CFCRMCommon.Models
+@using CFCRMCommon.Interfaces
+
+@inject NavigationManager NavigationManager
+@inject IAuditEventService AuditEventService
+@inject IAuditEventTypeService AuditEventTypeService
+@inject IRequestContextService RequestContextService
+@inject ISystemValueTypeService SystemValueTypeService
+@inject IUserService UserService
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body flex-column">
+                <div class="text-center">
+                    <img src="/images/logout.png" style="max-height:5rem" />
+                </div>
+                <div class="text-center mt-2">
+                    <span class="text-danger fw-bolder">You are logged out</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (HttpContext.User.Identity.IsAuthenticated)
+        {
+            await AddAuditEventLogOut(RequestContextService.UserId);
+
+            await HttpContext.SignOutAsync();
+            NavigationManager.NavigateTo("/logout", true);
+        }
+    }
+
+    private async Task AddAuditEventLogOut(string userId)
+    {
+        var auditEventTypes = await AuditEventTypeService.GetAllAsync();
+        var systemValueTypes = await SystemValueTypeService.GetAllAsync();
+
+        var auditEvent = new AuditEvent()
+            {
+                Id = Guid.NewGuid().ToString(),
+                CreatedDateTime = DateTimeOffset.UtcNow,
+                TypeId = auditEventTypes.First(i => i.Name == AuditEventTypeNames.UserLogOut).Id,
+                Parameters = new List<AuditEventParameter>()
+                    {
+                        new AuditEventParameter()
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            SystemValueTypeId = systemValueTypes.First(i => i.Name == SystemValueTypeNames.UserId).Id,
+                            Value = userId
+                        }
+                    }
+            };
+        await AuditEventService.AddAsync(auditEvent);
+    }
+}

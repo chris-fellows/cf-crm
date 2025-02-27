@@ -1,0 +1,14 @@
+﻿using CFCRMCommon.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CFCRMCommon.Interfaces
+{
+    public interface IPasswordResetService : IEntityWithIdService<PasswordReset, string>
+    {
+        Task<PasswordReset?> GetByUserIdAsync(string id);
+    }
+}

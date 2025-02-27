@@ -1,0 +1,16 @@
+﻿using CFCRMCommon.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CFCRMCommon.Interfaces
+{
+    public interface IUserService : IEntityWithIdService<User, string>
+    {
+        User? GetById(string id);
+
+        Task<User?> ValidateCredentialsAsync(string username, string password);
+    }
+}
