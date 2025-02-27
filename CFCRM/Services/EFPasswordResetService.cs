@@ -26,7 +26,7 @@ namespace CFCRMCommon.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.PasswordReset.ToListAsync()).OrderBy(i => i.CreatedDateTime).ToList();
+                return await context.PasswordReset.OrderBy(i => i.CreatedDateTime).ToListAsync();
             }
         }
 

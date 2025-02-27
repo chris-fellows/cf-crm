@@ -26,7 +26,7 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.Activity.ToListAsync()).OrderBy(i => i.CreatedDateTime).ToList();
+                return await context.Activity.OrderBy(i => i.CreatedDateTime).ToListAsync();
             }
         }
 
@@ -80,13 +80,13 @@ namespace CFCRM.Services
             }
         }
 
-        public async Task<PasswordReset?> GetByUserIdAsync(string id)
-        {
-            using (var context = _dbFactory.CreateDbContext())
-            {
-                var activity = await context.PasswordReset.FirstOrDefaultAsync(i => i.UserId == id);
-                return activity;
-            }
-        }
+        //public async Task<Activity?> GetByUserIdAsync(string id)
+        //{
+        //    using (var context = _dbFactory.CreateDbContext())
+        //    {
+        //        var activity = await context.Activity.FirstOrDefaultAsync(i => i.UserId == id);
+        //        return activity;
+        //    }
+        //}
     }
 }

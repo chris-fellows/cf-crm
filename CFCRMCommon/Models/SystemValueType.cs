@@ -7,11 +7,11 @@ namespace CFCRMCommon.Models
     /// </summary>
     public class SystemValueType
     {
-        //[MaxLength(50)]
+        [MaxLength(50)]
         public string Id { get; set; } = String.Empty;
 
-        //[Required]
-        //[MaxLength(100)]
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = String.Empty;
     }
 }

@@ -9,11 +9,11 @@ namespace CFCRMCommon.Models
     /// </summary>
     public class AuditEvent
     {
-        //[MaxLength(50)]
+        [MaxLength(50)]
         public string Id { get; set; } = String.Empty;
 
-        //[Required]
-        //[MaxLength(50)]
+        [Required]
+        [MaxLength(50)]
         //[ForeignKey("AuditEventType")]        
         public string TypeId { get; set; } = String.Empty;
 

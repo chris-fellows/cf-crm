@@ -7,6 +7,9 @@ using CFCRMCommon.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CFCRM.Services;
+using Azure;
+using CFCRMCommon.EntityReader;
+using CFCRMCommon.Models;
 
 const bool registerSeedDataLoad = true;
 const bool registerRequestInfoService = true;
@@ -56,7 +59,15 @@ builder.Services.AddScoped<IUserService, EFUserService>();
 // Add seed data services
 if (registerSeedDataLoad)
 {
-
+    builder.Services.AddKeyedScoped<IEntityReader<Account>, AccountSeed1>("AccountSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<AuditEventType>, AuditEventTypeSeed1>("AuditEventTypeSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<Contact>, ContactSeed1>("ContactSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<Country>, CountrySeed1>("CountrySeed");
+    builder.Services.AddKeyedScoped<IEntityReader<JobType>, JobTypeSeed1>("JobTypeSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<Lead>, LeadSeed1>("LeadSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<Product>, ProductSeed1>("ProductSeed");
+    builder.Services.AddKeyedScoped<IEntityReader<SystemValueType>, SystemValueTypeSeed1>("SystemValueTypeSeed");    
+    builder.Services.AddKeyedScoped<IEntityReader<User>, UserSeed1>("UserSeed");
 }
 
 // Add password service
@@ -89,13 +100,12 @@ app.UseAntiforgery();   // CF Moved from above
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-
 /*
 // Populate seed data
 using (var scope = app.Services.CreateScope())
 {
     //new SeedLoader().DeleteAsync(scope).Wait();
-    new SeedLoader().LoadAsync(scope, 200).Wait();
+    new SeedLoader().LoadAsync(scope).Wait();
 }
 */
 

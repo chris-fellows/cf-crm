@@ -7,26 +7,26 @@ namespace CFCRMCommon.Models
     /// </summary>
     public class PasswordReset
     {
-        ////[Required]
+        [Required]
         [MaxLength(50)]
         public string Id { get; set; } = String.Empty;
 
-        //[Required]
-        //[MaxLength(50)]
+        [Required]
+        [MaxLength(50)]
         public string UserId { get; set; } = String.Empty;
 
         /// <summary>
         /// Validation Id which is appended to the URL to make it harder to manually craft a working URL
         /// </summary>
-        //[Required]
-        //[MaxLength(150)]
+        [Required]
+        [MaxLength(150)]
         public string ValidationId { get; set; } = String.Empty;
 
         /// <summary>
         /// URL to reset password
         /// </summary>
-        //[Required]
-        //[MaxLength(250)]
+        [Required]
+        [MaxLength(250)]
         public string Url { get; set; } = String.Empty;
 
         public DateTimeOffset CreatedDateTime { get; set; }

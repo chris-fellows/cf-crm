@@ -60,13 +60,17 @@ namespace CFCRM.Data
         /// <param name="randomIssuesToCreate"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task LoadAsync(IServiceScope scope, int randomIssuesToCreate)
+        public async Task LoadAsync(IServiceScope scope)
         {
             // Get services
             var accountService = scope.ServiceProvider.GetRequiredService<IAccountService>();
             var auditEventService = scope.ServiceProvider.GetRequiredService<IAuditEventService>();
             var auditEventTypeService = scope.ServiceProvider.GetRequiredService<IAuditEventTypeService>();
             var contactService = scope.ServiceProvider.GetRequiredService<IContactService>();
+            var countryService = scope.ServiceProvider.GetRequiredService<ICountryService>();
+            var jobTypeService = scope.ServiceProvider.GetRequiredService<IJobTypeService>();
+            var leadService = scope.ServiceProvider.GetRequiredService<ILeadService>();
+            var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
             var systemValueTypeService = scope.ServiceProvider.GetRequiredService<ISystemValueTypeService>();            
             var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
@@ -74,7 +78,10 @@ namespace CFCRM.Data
             var accountSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<Account>>("AccountSeed");
             var auditEventTypeSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<AuditEventType>>("AuditEventTypeSeed");
             var contactSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<Contact>>("ContactSeed");
+            var countrySeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<Country>>("CountrySeed");
             var jobTypeSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<JobType>>("JobTypeSeed");
+            var leadSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<Lead>>("LeadSeed");
+            var productSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<Product>>("ProductSeed");
             var systemValueTypeSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<SystemValueType>>("SystemValueTypeSeed");            
             var userSeed = scope.ServiceProvider.GetRequiredKeyedService<IEntityReader<User>>("UserSeed");
 
@@ -102,7 +109,28 @@ namespace CFCRM.Data
             // Get audit event types & system value types
             var auditEventTypes = await auditEventTypeService.GetAllAsync();
             var systemValueTypes = await systemValueTypeService.GetAllAsync();
-         
+
+            // Add countries
+            var countriesNew = countrySeed.Read();
+            foreach (var country in countriesNew)
+            {
+                await countryService.AddAsync(country);
+            }
+
+            // Add job types
+            var jobTypesNew = jobTypeSeed.Read();
+            foreach (var jobType in jobTypesNew)
+            {
+                await jobTypeService.AddAsync(jobType);
+            }
+
+            // Add products
+            var productsNew = productSeed.Read();
+            foreach (var product in productsNew)
+            {
+                await productService.AddAsync(product);
+            }
+
             // Add users
             var usersNew = userSeed.Read();
             foreach (var user in usersNew)
@@ -139,6 +167,13 @@ namespace CFCRM.Data
             foreach (var contact in contactsNew)
             {
                 await contactService.AddAsync(contact);
+            }
+
+            // Add leads
+            var leadsNew = leadSeed.Read();
+            foreach (var lead in leadsNew)
+            {
+                await leadService.AddAsync(lead);
             }
         }        
     }

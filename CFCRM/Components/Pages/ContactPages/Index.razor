@@ -1,43 +1,166 @@
 ﻿@page "/contacts"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using CFCRMCommon.Interfaces
 @using CFCRMCommon.Models
 @using CFCRM.Data
-@implements IAsyncDisposable
+@using CFCRM.Utilities
 @inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject IContactService ContactService
+@inject IJobTypeService JobTypeService
+
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@attribute [Authorize(Roles = "Administrator,User")]
 
 <PageTitle>Index</PageTitle>
 
 <h1>Index</h1>
 
+<ActivityIndicator IsBusy="@IsBusy" />
+
 <p>
     <a href="contacts/create">Create New</a>
+    <br/>
+    <div style="display: inline-block">
+
+        <label for="reference">Reference:</label>
+        <InputText @bind-Value="@FilterText" />     
+
+        <label for="issuestatusid">Status:</label>
+        <InputSelect @bind-Value="@FilterJobTypeId">
+            @foreach (JobType jobType in JobsTypes)
+            {
+                <option value="@jobType.Id">@jobType.Name</option>
+            }
+        </InputSelect>       
+    </div>
+
 </p>
 
-<QuickGrid Class="table" Items="context.Contact">
-    <PropertyColumn Property="contact => contact.FirstName" />
-    <PropertyColumn Property="contact => contact.LastName" />
-    <PropertyColumn Property="contact => contact.JobTitle" />
-    <PropertyColumn Property="contact => contact.JobTypeId" />
-    <PropertyColumn Property="contact => contact.Email" />
-    <PropertyColumn Property="contact => contact.Notes" />
-    <PropertyColumn Property="contact => contact.AccountId" />
-    <PropertyColumn Property="contact => contact.Active" />
+@if (ContactsQueryable == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <QuickGrid Class="table" Items="@ContactsQueryable" Pagination="@Pagination">
+        <PropertyColumn Title="First Name" Property="contact => contact.FirstName" />
+        <PropertyColumn Title="Last Name" Property="contact => contact.LastName" />
+        <PropertyColumn Title="Title" Property="contact => contact.JobTitle" />
+        <PropertyColumn Title="Job Type" Property="contact => GetJobTypeName(contact)" />
+        <PropertyColumn Title="Email" Property="contact => contact.Email" />            
+        <PropertyColumn Property="contact => contact.Active" />
 
-    <TemplateColumn Context="contact">
-        <a href="@($"contacts/edit?id={contact.Id}")">Edit</a> |
-        <a href="@($"contacts/details?id={contact.Id}")">Details</a> |
-        <a href="@($"contacts/delete?id={contact.Id}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+        <TemplateColumn Context="contact">
+            <a href="@($"contacts/edit?id={contact.Id}")">Edit</a> |
+            <a href="@($"contacts/details?id={contact.Id}")">Details</a> |
+            <a href="@($"contacts/delete?id={contact.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+
+    <Paginator State="@Pagination" />
+}
 
 @code {
-    private CFCRMContext context = default!;
+    //private CFCRMContext context = default!;
 
-    protected override void OnInitialized()
+    private PaginationState Pagination = new PaginationState() { ItemsPerPage = 20 };
+
+    private IQueryable<Contact>? ContactsQueryable;
+
+    private List<JobType> JobsTypes = new();
+
+    private bool IsBusy { get; set; } = false;
+
+
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        //context = DbFactory.CreateDbContext();
+
+        IsBusy = true;
+
+        JobsTypes = await JobTypeService.GetAllAsync();
+
+        await RefreshContactsAsync(false);
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+    private void RefreshContacts(bool notifyStateHasChanged)
+    {
+        IsBusy = true;
+
+        ContactsQueryable = ContactService.GetByFilter(GetContactFilter())
+                            .OrderBy(i => i.LastName)
+                            .ThenBy(i => i.FirstName)
+                            .AsQueryable();
+
+        //var count = IssuesQueryable.Count();
+
+        IsBusy = false;
+
+        //if (notifyStateHasChanged) StateHasChanged();
+    }
+
+    private async Task RefreshContactsAsync(bool notifyStateHasChanged)
+    {
+        IsBusy = true;
+
+        //await Task.Delay(3000);
+
+        ContactsQueryable = (await ContactService.GetByFilterAsync(GetContactFilter()))
+                            .OrderBy(i => i.LastName)
+                            .ThenBy(i => i.FirstName)
+                            .AsQueryable();
+
+        IsBusy = false;
+
+        //if (notifyStateHasChanged) StateHasChanged();
+    }
+
+    private ContactFilter GetContactFilter()
+    {
+        return new ContactFilter()
+        {
+            TextSearch = String.IsNullOrEmpty(FilterText) ? null : FilterText
+        };
+    }
+
+    // Filter on reference
+    private string _filterText = String.Empty;
+    public string FilterText
+    {
+        get { return _filterText; }
+        set
+        {
+            if (_filterText != value)
+            {
+                _filterText = value;
+                RefreshContacts(true);                
+            }
+        }
+    }
+
+    // Filter on issue status
+    private string _filterJobTypeId = UIUtilities.AnyId;
+    public string FilterJobTypeId
+    {
+        get { return _filterJobTypeId; }
+        set
+        {
+            if (_filterJobTypeId != value)
+            {
+                _filterJobTypeId = value;
+                RefreshContacts(true);
+                //Task.Factory.StartNew(() => RefreshIssuesAsync(true));
+            }
+        }
+    }
+
+    private string GetJobTypeName(Contact contact)
+    {
+        return JobsTypes.First(j => j.Id == contact.JobTypeId).Name;
+    }
+
+    //public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

@@ -32,7 +32,7 @@ namespace CFCRMCommon.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.SystemValueType.ToListAsync()).OrderBy(u => u.Name).ToList();
+                return await context.SystemValueType.OrderBy(u => u.Name).ToListAsync();
             }
         }
 

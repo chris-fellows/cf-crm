@@ -9,16 +9,14 @@ namespace CFCRMCommon.Models
     /// </summary>
     public class AuditEventParameter
     {
-        /// <summary>
-        /// [MaxLength(50)]
-        /// </summary>
+        [MaxLength(50)]
         public string Id { get; set; } = String.Empty;
 
         /// <summary>
         /// System Value Type Id
         /// </summary>
-        //[Required]
-        //[MaxLength(50)]
+        [Required]
+        [MaxLength(50)]
         //[ForeignKey("SystemValueType")]        
         public string SystemValueTypeId { get; set; } = String.Empty;
 
@@ -28,8 +26,8 @@ namespace CFCRMCommon.Models
         /// <summary>
         /// Value
         /// </summary>
-        //[Required]
-        //[MaxLength(500)]
+        [Required]
+        [MaxLength(500)]
         public string Value { get; set; } = String.Empty;
     }
 }

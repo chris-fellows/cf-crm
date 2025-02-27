@@ -9,5 +9,8 @@ namespace CFCRMCommon.Interfaces
 {
     public interface IContactService : IEntityWithIdService<Contact, string>
     {
+        Task<List<Contact>> GetByFilterAsync(ContactFilter filter);
+
+        List<Contact> GetByFilter(ContactFilter filter);
     }
 }

@@ -1,38 +1,165 @@
 ﻿@page "/accounts"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using CFCRMCommon.Interfaces
 @using CFCRMCommon.Models
 @using CFCRM.Data
-@implements IAsyncDisposable
+@using CFCRM.Utilities
 @inject IDbContextFactory<CFCRM.Data.CFCRMContext> DbFactory
+@inject IAccountService AccountService
+@inject IUserService UserService
+
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@attribute [Authorize(Roles = "Administrator,User")]
 
 <PageTitle>Index</PageTitle>
 
 <h1>Index</h1>
 
+<ActivityIndicator IsBusy="@IsBusy" />
+
 <p>
     <a href="accounts/create">Create New</a>
+    <br />
+    <div style="display: inline-block">
+
+        <label for="reference">Reference:</label>
+        <InputText @bind-Value="@FilterText" />
+
+        <label for="issuestatusid">Status:</label>
+        <InputSelect @bind-Value="@FilterOwningUserId">
+            @foreach (User user in Users)
+            {
+                <option value="@user.Id">@user.Name</option>
+            }
+        </InputSelect>
+    </div>
 </p>
 
-<QuickGrid Class="table" Items="context.Account">
-    <PropertyColumn Property="account => account.Name" />
-    <PropertyColumn Property="account => account.Notes" />
-    <PropertyColumn Property="account => account.OwningUserId" />
+@if (AccountsQueryable == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <QuickGrid Class="table" Items="@AccountsQueryable" Pagination="@Pagination">
+        <PropertyColumn Property="account => account.Name" />                
 
-    <TemplateColumn Context="account">
-        <a href="@($"accounts/edit?id={account.Id}")">Edit</a> |
-        <a href="@($"accounts/details?id={account.Id}")">Details</a> |
-        <a href="@($"accounts/delete?id={account.Id}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+        <TemplateColumn Title="Assigned User" Context="account">
+            <ImageAndText ImageSource="@(GetOwingUserImageSource(account))" Text="@(GetOwningUserName(account))" />
+        </TemplateColumn>
+
+        <TemplateColumn Context="account">
+            <a href="@($"accounts/edit?id={account.Id}")">Edit</a> |
+            <a href="@($"accounts/details?id={account.Id}")">Details</a> |
+            <a href="@($"accounts/delete?id={account.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+
+    <Paginator State="@Pagination" />
+}
 
 @code {
-    private CFCRMContext context = default!;
+    private PaginationState Pagination = new PaginationState() { ItemsPerPage = 20 };
 
-    protected override void OnInitialized()
+    private IQueryable<Account>? AccountsQueryable;
+
+    private List<User> Users = new();
+
+    private bool IsBusy { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        //context = DbFactory.CreateDbContext();
+
+        IsBusy = true;
+
+        Users = await UserService.GetAllAsync();
+
+        await RefreshAccountsAsync(false);
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+    private void RefreshAccounts(bool notifyStateHasChanged)
+    {
+        IsBusy = true;
+
+        AccountsQueryable = AccountService.GetByFilter(GetAccountFilter())
+                            .OrderBy(i => i.Name)                            
+                            .AsQueryable();
+
+        //var count = IssuesQueryable.Count();
+
+        IsBusy = false;
+
+        //if (notifyStateHasChanged) StateHasChanged();
+    }
+
+    private async Task RefreshAccountsAsync(bool notifyStateHasChanged)
+    {
+        IsBusy = true;
+
+        //await Task.Delay(3000);
+
+        AccountsQueryable = (await AccountService.GetByFilterAsync(GetAccountFilter()))
+                            .OrderBy(i => i.Name)
+                            .AsQueryable();
+
+        IsBusy = false;
+
+        //if (notifyStateHasChanged) StateHasChanged();
+    }
+
+    private AccountFilter GetAccountFilter()
+    {
+        return new AccountFilter()
+            {
+                TextSearch = String.IsNullOrEmpty(FilterText) ? null : FilterText,
+                OwningUserIds = FilterOwningUserId == UIUtilities.AnyId ? null : new() { FilterOwningUserId }
+            };
+    }
+
+    // Filter on reference
+    private string _filterText = String.Empty;
+    public string FilterText
+    {
+        get { return _filterText; }
+        set
+        {
+            if (_filterText != value)
+            {
+                _filterText = value;
+                RefreshAccounts(true);
+            }
+        }
+    }
+
+    // Filter on owning user
+    private string _filterOwningUserId = UIUtilities.AnyId;
+    public string FilterOwningUserId
+    {
+        get { return _filterOwningUserId; }
+        set
+        {
+            if (_filterOwningUserId != value)
+            {
+                _filterOwningUserId = value;
+                RefreshAccounts(true);
+                //Task.Factory.StartNew(() => RefreshIssuesAsync(true));
+            }
+        }
+    }
+    
+    private string GetOwningUserName(Account account)
+    {
+        return Users.First(u => u.Id == account.OwningUserId).Name;
+    }
+
+    private string GetOwingUserImageSource(Account account)
+    {
+        return $"../images/users/{Users.First(u => u.Id == account.OwningUserId).ImageSource}";
+    }
+
+    //public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

@@ -1,4 +1,5 @@
 ﻿using CFCRM.Data;
+using CFCRMCommon.Enums;
 using CFCRMCommon.Interfaces;
 using CFCRMCommon.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,8 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return context.Contact                      
+                return context.Contact.OrderBy(c => c.LastName)
+                      .ThenBy(c => c.LastName)
                       .ToList();
             }
         }
@@ -28,8 +30,8 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return await context.Contact
-                      .ToListAsync();
+                return (await context.Contact.ToListAsync()).OrderBy(c => c.LastName).ThenBy(c => c.FirstName).ToList();
+                      
             }
         }
 
@@ -57,7 +59,7 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                var contact = await context.Contact                            
+                var contact = await context.Contact
                             .FirstOrDefaultAsync(i => i.Id == id);
                 return contact;
             }
@@ -67,7 +69,7 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return await context.Contact                            
+                return await context.Contact
                             .Where(i => ids.Contains(i.Id)).ToListAsync();
             }
         }
@@ -82,7 +84,49 @@ namespace CFCRM.Services
                     context.Contact.Remove(contact);
                     await context.SaveChangesAsync();
                 }
-            }       
-        }  
+            }
+        }
+
+        public async Task<List<Contact>> GetByFilterAsync(ContactFilter filter)
+        {
+            using (var context = _dbFactory.CreateDbContext())
+            {
+                var contacts = await context.Contact
+                           .Where(i =>
+                            (
+                                String.IsNullOrEmpty(filter.TextSearch) ||
+                                i.FirstName.Contains(filter.TextSearch) ||
+                                i.LastName.Contains(filter.TextSearch) ||
+                                i.Email.Contains(filter.TextSearch) ||
+                                i.Notes.Contains(filter.TextSearch)
+                            )
+                        )
+                        .OrderBy(c => c.LastName)
+                        .ThenBy(c => c.FirstName).ToListAsync();              
+
+                return contacts;
+            }
+        }
+
+        public List<Contact> GetByFilter(ContactFilter filter)
+        {
+            using (var context = _dbFactory.CreateDbContext())
+            {
+                var contacts = context.Contact
+                          .Where(i =>
+                            (
+                                String.IsNullOrEmpty(filter.TextSearch) ||
+                                i.FirstName.Contains(filter.TextSearch) ||
+                                i.LastName.Contains(filter.TextSearch) ||
+                                i.Email.Contains(filter.TextSearch) ||
+                                i.Notes.Contains(filter.TextSearch)
+                            )
+                         )
+                         .OrderBy(c => c.LastName)
+                         .ThenBy(c => c.FirstName).ToList();                    
+
+                return contacts;
+            }
+        }
     }
 }

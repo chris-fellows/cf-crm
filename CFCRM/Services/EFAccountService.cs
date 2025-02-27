@@ -26,7 +26,9 @@ namespace CFCRMCommon.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.Account.ToListAsync()).OrderBy(e => e.Name).ToList();
+                return await context.Account
+                        .OrderBy(e => e.Name)
+                        .ToListAsync();
             }
         }
 
@@ -86,6 +88,52 @@ namespace CFCRMCommon.Services
             {
                 var account = await context.Account.FirstOrDefaultAsync(i => i.Name == name);
                 return account;
+            }
+        }
+
+        public async Task<List<Account>> GetByFilterAsync(AccountFilter filter)
+        {
+            using (var context = _dbFactory.CreateDbContext())
+            {
+                var accounts = await context.Account                           
+                           .Where(i =>
+                            (
+                                String.IsNullOrEmpty(filter.TextSearch) ||
+                                i.Name.Contains(filter.TextSearch) ||
+                                i.Notes.Contains(filter.TextSearch)
+                            ) &&
+                            (
+                                filter.OwningUserIds == null ||
+                                !filter.OwningUserIds.Any() ||
+                                filter.OwningUserIds.Contains(i.OwningUserId)
+                            )
+                        )
+                        .OrderBy(e => e.Name).ToListAsync();                        
+
+                return accounts;
+            }
+        }
+
+        public List<Account> GetByFilter(AccountFilter filter)
+        {
+            using (var context = _dbFactory.CreateDbContext())
+            {
+                var accounts = context.Account
+                          .Where(i =>
+                            (
+                               String.IsNullOrEmpty(filter.TextSearch) ||
+                                i.Name.Contains(filter.TextSearch) ||
+                                i.Notes.Contains(filter.TextSearch)
+                            ) &&
+                            (
+                                filter.OwningUserIds == null ||
+                                !filter.OwningUserIds.Any() ||
+                                filter.OwningUserIds.Contains(i.OwningUserId)
+                            )
+                         )
+                         .OrderBy(i => i.Name).ToList();                    
+
+                return accounts;
             }
         }
     }

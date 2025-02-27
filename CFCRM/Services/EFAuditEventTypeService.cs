@@ -27,7 +27,7 @@ namespace CFCRMCommon.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.AuditEventType.ToListAsync()).OrderBy(e => e.Name).ToList();
+                return await context.AuditEventType.OrderBy(e => e.Name).ToListAsync();
             }
         }
 

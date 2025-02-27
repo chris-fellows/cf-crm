@@ -9,8 +9,8 @@ namespace CFCRMCommon.Interfaces
 {
     public interface IAuditEventService : IEntityWithIdService<AuditEvent, string>
     {
-        //Task<List<AuditEvent>> GetByFilterAsync(AuditEventFilter auditEventFilter);
+        Task<List<AuditEvent>> GetByFilterAsync(AuditEventFilter auditEventFilter);
 
-        //List<AuditEvent> GetByFilter(AuditEventFilter auditEventFilter);
+        List<AuditEvent> GetByFilter(AuditEventFilter auditEventFilter);
     }
 }

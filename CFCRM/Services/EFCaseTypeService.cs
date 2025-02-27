@@ -26,7 +26,7 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.CaseType.ToListAsync()).OrderBy(e => e.Name).ToList();
+                return await context.CaseType.OrderBy(e => e.Name).ToListAsync();
             }
         }
 
