@@ -47,6 +47,22 @@ namespace CFCRM.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Address",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Line1 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Line2 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Town = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Postcode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CountryId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Address", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuditEvent",
                 columns: table => new
                 {
@@ -278,10 +294,38 @@ namespace CFCRM.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ContactAddress",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    AddressId = table.Column<string>(type: "nvarchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactAddress", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContactAddress_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ContactAddress_Contact_Id",
+                        column: x => x.Id,
+                        principalTable: "Contact",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AuditEventParameter_AuditEventId",
                 table: "AuditEventParameter",
                 column: "AuditEventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactAddress_AddressId",
+                table: "ContactAddress",
+                column: "AddressId");
         }
 
         /// <inheritdoc />
@@ -312,7 +356,7 @@ namespace CFCRM.Migrations
                 name: "CommunicationType");
 
             migrationBuilder.DropTable(
-                name: "Contact");
+                name: "ContactAddress");
 
             migrationBuilder.DropTable(
                 name: "Country");
@@ -340,6 +384,12 @@ namespace CFCRM.Migrations
 
             migrationBuilder.DropTable(
                 name: "AuditEvent");
+
+            migrationBuilder.DropTable(
+                name: "Address");
+
+            migrationBuilder.DropTable(
+                name: "Contact");
         }
     }
 }

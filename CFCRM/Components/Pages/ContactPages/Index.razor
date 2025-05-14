@@ -95,7 +95,7 @@ else
                             .ThenBy(i => i.FirstName)
                             .AsQueryable();
 
-        //var count = IssuesQueryable.Count();
+var items = ContactsQueryable.ToList();
 
         IsBusy = false;
 
@@ -112,6 +112,8 @@ else
                             .OrderBy(i => i.LastName)
                             .ThenBy(i => i.FirstName)
                             .AsQueryable();
+
+        var items = ContactsQueryable.ToList();
 
         IsBusy = false;
 

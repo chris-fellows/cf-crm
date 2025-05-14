@@ -30,14 +30,25 @@ namespace CFCRMCommon.EntityReader
                 new Contact()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    AccountId = accounts[0].Id,   
+                    AccountId = accounts[0].Id,
                     Active = true,
                     Email = "john.smith@xxxx.com",
                     FirstName = "John",
                     JobTitle = "Procurement Manager",
                     JobTypeId = jobTypes[0].Id,
-                    LastName = "Smith",                                                                    
-                    Notes = "Notes for contact"
+                    LastName = "Smith",
+                    Notes = "Notes for contact",
+                    Address = new ContactAddress()
+                    {
+                       Address = new Address()
+                       {
+                           Id = Guid.NewGuid().ToString(),
+                           Line1 = "Line 1",
+                           Line2 = "Line 2",
+                           Postcode = "ABC 123",
+                           Town = "MyTown"
+                       }
+                    }
                 },
                 new Contact()
                 {
@@ -49,7 +60,18 @@ namespace CFCRMCommon.EntityReader
                     JobTitle = "Procurement Manager",
                     JobTypeId = jobTypes[0].Id,
                     LastName = "Smith",
-                    Notes = "Notes for contact"
+                    Notes = "Notes for contact",
+                    Address = new ContactAddress()
+                    {
+                       Address = new Address()
+                       {
+                           Id = Guid.NewGuid().ToString(),
+                           Line1 = "Line 1",
+                           Line2 = "Line 2",
+                           Postcode = "ABC 123",
+                           Town = "MyTown"
+                       }
+                    }
                 },
                 new Contact()
                 {
@@ -61,7 +83,18 @@ namespace CFCRMCommon.EntityReader
                     JobTitle = "IT Manager",
                     JobTypeId = jobTypes[0].Id,
                     LastName = "Jones",
-                    Notes = "Notes for contact"
+                    Notes = "Notes for contact",
+                    Address = new ContactAddress()
+                    {
+                       Address = new Address()
+                       {
+                           Id = Guid.NewGuid().ToString(),
+                           Line1 = "Line 1",
+                           Line2 = "Line 2",
+                           Postcode = "ABC 123",
+                           Town = "MyTown"
+                       }
+                    }
                 },
                 new Contact()
                 {
@@ -73,7 +106,18 @@ namespace CFCRMCommon.EntityReader
                     JobTitle = "Procurement Manager",
                     JobTypeId = jobTypes[1].Id,
                     LastName = "Green",
-                    Notes = "Notes for contact"
+                    Notes = "Notes for contact",
+                    Address = new ContactAddress()
+                    {
+                       Address = new Address()
+                       {
+                           Id = Guid.NewGuid().ToString(),
+                           Line1 = "Line 1",
+                           Line2 = "Line 2",
+                           Postcode = "ABC 123",
+                           Town = "MyTown"
+                       }
+                    }
                 },
                 new Contact()
                 {
@@ -85,10 +129,21 @@ namespace CFCRMCommon.EntityReader
                     JobTitle = "IT Administrator",
                     JobTypeId = jobTypes[2].Id,
                     LastName = "Alexander",
-                    Notes = "Notes for contact"
+                    Notes = "Notes for contact",
+                    Address = new ContactAddress()
+                    {
+                       Address = new Address()
+                       {
+                           Id = Guid.NewGuid().ToString(),
+                           Line1 = "Line 1",
+                           Line2 = "Line 2",
+                           Postcode = "ABC 123",
+                           Town = "MyTown"
+                       }
+                    }
                 },
             };
-
+            
             return list;
         }
     }

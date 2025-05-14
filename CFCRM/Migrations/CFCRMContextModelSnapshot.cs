@@ -105,6 +105,42 @@ namespace CFCRM.Migrations
                     b.ToTable("Activity");
                 });
 
+            modelBuilder.Entity("CFCRMCommon.Models.Address", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CountryId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Line1")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Line2")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Postcode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Town")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Address");
+                });
+
             modelBuilder.Entity("CFCRMCommon.Models.AuditEvent", b =>
                 {
                     b.Property<string>("Id")
@@ -309,6 +345,21 @@ namespace CFCRM.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Contact");
+                });
+
+            modelBuilder.Entity("CFCRMCommon.Models.ContactAddress", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("AddressId")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.ToTable("ContactAddress");
                 });
 
             modelBuilder.Entity("CFCRMCommon.Models.Country", b =>
@@ -520,9 +571,32 @@ namespace CFCRM.Migrations
                         .HasForeignKey("AuditEventId");
                 });
 
+            modelBuilder.Entity("CFCRMCommon.Models.ContactAddress", b =>
+                {
+                    b.HasOne("CFCRMCommon.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("CFCRMCommon.Models.Contact", "Contact")
+                        .WithOne("Address")
+                        .HasForeignKey("CFCRMCommon.Models.ContactAddress", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact");
+                });
+
             modelBuilder.Entity("CFCRMCommon.Models.AuditEvent", b =>
                 {
                     b.Navigation("Parameters");
+                });
+
+            modelBuilder.Entity("CFCRMCommon.Models.Contact", b =>
+                {
+                    b.Navigation("Address")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -20,7 +20,9 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return context.Contact.OrderBy(c => c.LastName)
+                return context.Contact
+                      .Include(c => c.Address.Address)
+                      .OrderBy(c => c.LastName)
                       .ThenBy(c => c.LastName)
                       .ToList();
             }
@@ -30,8 +32,7 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                return (await context.Contact.ToListAsync()).OrderBy(c => c.LastName).ThenBy(c => c.FirstName).ToList();
-                      
+                return await context.Contact.Include(c => c.Address.Address).OrderBy(c => c.LastName).ThenBy(c => c.FirstName).ToListAsync();
             }
         }
 
@@ -60,6 +61,7 @@ namespace CFCRM.Services
             using (var context = _dbFactory.CreateDbContext())
             {
                 var contact = await context.Contact
+                            .Include(c => c.Address.Address)
                             .FirstOrDefaultAsync(i => i.Id == id);
                 return contact;
             }
@@ -70,7 +72,8 @@ namespace CFCRM.Services
             using (var context = _dbFactory.CreateDbContext())
             {
                 return await context.Contact
-                            .Where(i => ids.Contains(i.Id)).ToListAsync();
+                        .Include(c => c.Address.Address)
+                        .Where(i => ids.Contains(i.Id)).ToListAsync();
             }
         }
 
@@ -91,7 +94,8 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                var contacts = await context.Contact
+                var contacts = await context.Contact                           
+                           .Include(c => c.Address.Address)
                            .Where(i =>
                             (
                                 String.IsNullOrEmpty(filter.TextSearch) ||
@@ -112,7 +116,8 @@ namespace CFCRM.Services
         {
             using (var context = _dbFactory.CreateDbContext())
             {
-                var contacts = context.Contact
+                var contacts = context.Contact                          
+                          .Include(c => c.Address.Address)
                           .Where(i =>
                             (
                                 String.IsNullOrEmpty(filter.TextSearch) ||

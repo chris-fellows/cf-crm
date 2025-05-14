@@ -50,7 +50,7 @@ namespace CFCRMCommon.Models
 
         public bool Active { get; set; }
 
-        //public Address Address { get; set; } = new();
+        public virtual ContactAddress Address { get; set; }
 
         //public List<PhoneNumber> PhoneNumbers { get; set; } = new();
     }
